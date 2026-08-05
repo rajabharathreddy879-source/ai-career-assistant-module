@@ -1,0 +1,14 @@
+[build]
+  command = "pnpm --filter @workspace/career-chat run build"
+  publish = "artifacts/career-chat/dist"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://ai-career-assistant-api.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
