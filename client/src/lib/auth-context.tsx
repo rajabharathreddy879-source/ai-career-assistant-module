@@ -85,29 +85,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString(),
     };
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: cleanEmail, password }),
-      });
-      if (res.ok) {
-        const text = await res.text();
-        const data = text ? JSON.parse(text) : {};
-        if (data.user && data.token) {
-          localStorage.setItem('auth_token', data.token);
-          localStorage.setItem('auth_user', JSON.stringify(data.user));
-          setUser(data.user);
-          setSession({ access_token: data.token, user: data.user });
-          return;
-        }
-      }
-    } catch (e) {}
-
     localStorage.setItem('auth_token', `token_${activeUser.id}`);
     localStorage.setItem('auth_user', JSON.stringify(activeUser));
     setUser(activeUser);
     setSession({ access_token: `token_${activeUser.id}`, user: activeUser });
+
+    fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password }),
+    }).catch(() => {});
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -121,29 +108,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString(),
     };
 
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: cleanEmail, password, full_name: cleanName }),
-      });
-      if (res.ok) {
-        const text = await res.text();
-        const data = text ? JSON.parse(text) : {};
-        if (data.user && data.token) {
-          localStorage.setItem('auth_token', data.token);
-          localStorage.setItem('auth_user', JSON.stringify(data.user));
-          setUser(data.user);
-          setSession({ access_token: data.token, user: data.user });
-          return;
-        }
-      }
-    } catch (e) {}
-
     localStorage.setItem('auth_token', `token_${activeUser.id}`);
     localStorage.setItem('auth_user', JSON.stringify(activeUser));
     setUser(activeUser);
     setSession({ access_token: `token_${activeUser.id}`, user: activeUser });
+
+    fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password, full_name: cleanName }),
+    }).catch(() => {});
   };
 
   const signInWithGoogle = async () => {
