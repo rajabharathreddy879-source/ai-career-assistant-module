@@ -60,6 +60,30 @@ ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE resumes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if re-running
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can delete own profile" ON profiles;
+
+DROP POLICY IF EXISTS "Users can view own chat sessions" ON chat_sessions;
+DROP POLICY IF EXISTS "Users can insert own chat sessions" ON chat_sessions;
+DROP POLICY IF EXISTS "Users can update own chat sessions" ON chat_sessions;
+DROP POLICY IF EXISTS "Users can delete own chat sessions" ON chat_sessions;
+
+DROP POLICY IF EXISTS "Users can view own chat messages" ON chat_messages;
+DROP POLICY IF EXISTS "Users can insert own chat messages" ON chat_messages;
+
+DROP POLICY IF EXISTS "Users can view own resumes" ON resumes;
+DROP POLICY IF EXISTS "Users can insert own resumes" ON resumes;
+DROP POLICY IF EXISTS "Users can update own resumes" ON resumes;
+DROP POLICY IF EXISTS "Users can delete own resumes" ON resumes;
+
+DROP POLICY IF EXISTS "Users can view own reports" ON reports;
+DROP POLICY IF EXISTS "Users can insert own reports" ON reports;
+DROP POLICY IF EXISTS "Users can update own reports" ON reports;
+DROP POLICY IF EXISTS "Users can delete own reports" ON reports;
+
 -- RLS Policies: Profiles
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
