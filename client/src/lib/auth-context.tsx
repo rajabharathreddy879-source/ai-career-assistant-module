@@ -1,10 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name?: string | null;
+  created_at?: string;
+}
+
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: UserProfile | null;
+  session: any | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
@@ -15,59 +21,87 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const syncUserToBackend = async (currentUser: User) => {
+  const initAuth = async () => {
     try {
-      await fetch('/api/auth/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: currentUser.id,
-          email: currentUser.email!,
-          full_name: currentUser.user_metadata?.full_name || null,
-        }),
-      });
+      const savedToken = localStorage.getItem('auth_token');
+      const savedUser = localStorage.getItem('auth_user');
+
+      if (savedToken && savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        setSession({ access_token: savedToken, user: parsedUser });
+        setLoading(false);
+        return;
+      }
     } catch (e) {
-      console.error('Failed to sync profile:', e);
+      console.warn('Error reading saved session:', e);
+    }
+
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        const u = {
+          id: data.session.user.id,
+          email: data.session.user.email!,
+          full_name: data.session.user.user_metadata?.full_name || null,
+        };
+        setUser(u);
+        setSession(data.session);
+      }
+    } catch (err) {
+      console.warn('Supabase session fallback warning:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      if (session?.user) {
-        syncUserToBackend(session.user);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        syncUserToBackend(session.user);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    initAuth();
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to log in');
+      }
+
+      localStorage.setItem('auth_token', data.token);
+      localStorage.setItem('auth_user', JSON.stringify(data.user));
+      setUser(data.user);
+      setSession({ access_token: data.token, user: data.user });
+    } catch (err: any) {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw new Error(err.message || error.message);
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } },
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), password, full_name: fullName.trim() }),
     });
-    if (error) throw error;
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to create account');
+    }
+
+    localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('auth_user', JSON.stringify(data.user));
+    setUser(data.user);
+    setSession({ access_token: data.token, user: data.user });
   };
 
   const signInWithGoogle = async () => {
@@ -76,8 +110,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    setUser(null);
+    setSession(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {}
   };
 
   return (
