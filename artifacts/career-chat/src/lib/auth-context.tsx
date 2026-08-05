@@ -89,13 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('auth_user', JSON.stringify(activeUser));
     setUser(activeUser);
     setSession({ access_token: `token_${activeUser.id}`, user: activeUser });
-
-    // Optional background sync with server
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, password }),
-    }).catch(() => {});
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -113,13 +106,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('auth_user', JSON.stringify(activeUser));
     setUser(activeUser);
     setSession({ access_token: `token_${activeUser.id}`, user: activeUser });
-
-    // Optional background sync with server
-    fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, password, full_name: cleanName }),
-    }).catch(() => {});
   };
 
   const signInWithGoogle = async () => {
