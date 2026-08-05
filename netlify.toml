@@ -2,6 +2,9 @@
   command = "pnpm --filter @workspace/career-chat run build"
   publish = "artifacts/career-chat/dist"
 
+[build.environment]
+  PNPM_FLAGS = "--no-frozen-lockfile"
+
 [[redirects]]
   from = "/api/*"
   to = "https://ai-career-assistant-api.onrender.com/api/:splat"
