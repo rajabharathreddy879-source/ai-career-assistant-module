@@ -4,25 +4,61 @@ import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { SiGoogle } from 'react-icons/si';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      toast({ variant: 'destructive', title: 'Invalid Email', description: 'Please enter a valid email address.' });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(cleanEmail, password);
+      toast({ title: 'Welcome back!', description: 'Logged in successfully.' });
       setLocation('/dashboard');
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Login Failed', description: error.message });
+      const errMsg = error.message || 'Login failed';
+      if (errMsg.toLowerCase().includes('invalid login credentials') || errMsg.toLowerCase().includes('user not found')) {
+        toast({
+          variant: 'destructive',
+          title: 'Account Not Found / Invalid Credentials',
+          description: 'No account found with this email or password mismatch. Please sign up first.',
+        });
+      } else {
+        toast({ variant: 'destructive', title: 'Login Error', description: errMsg });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoSignIn = async () => {
+    setIsLoading(true);
+    const demoEmail = `demo.user.${Math.floor(Math.random() * 10000)}@example.com`;
+    const demoPass = 'CareerAiPass2026!';
+    try {
+      await signUp(demoEmail, demoPass, 'Demo Engineer');
+      toast({ title: 'Demo Account Created!', description: 'Logging you into your test workspace.' });
+      setLocation('/dashboard');
+    } catch (err: any) {
+      try {
+        await signIn(demoEmail, demoPass);
+        setLocation('/dashboard');
+      } catch (signInErr: any) {
+        toast({ variant: 'destructive', title: 'Demo Login Error', description: signInErr.message });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -45,20 +81,30 @@ export default function Login() {
           <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
             <span className="text-white text-xl font-bold font-mono">A</span>
           </div>
-          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">Welcome back</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Sign in to your high-signal workspace.</p>
+          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">Welcome Back</h1>
+          <p className="text-muted-foreground mt-2 text-sm">Sign in to your AI Career Assistant workspace.</p>
+        </div>
+
+        <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-xs text-foreground">
+            <Sparkles className="w-4 h-4 text-primary shrink-0" />
+            <span>Want a quick test? Use instant guest sign-in.</span>
+          </div>
+          <Button size="sm" variant="default" className="text-xs h-7 px-3" onClick={handleDemoSignIn} disabled={isLoading}>
+            Instant Demo <ArrowRight className="w-3 h-3 ml-1" />
+          </Button>
         </div>
 
         <form onSubmit={handleEmailLogin} className="space-y-4 mb-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Email</label>
+            <label className="text-sm font-medium text-foreground">Email Address</label>
             <Input 
               type="email" 
               required 
               value={email} 
               onChange={e => setEmail(e.target.value)} 
               className="bg-background"
-              placeholder="engineer@example.com"
+              placeholder="name@company.com"
             />
           </div>
           <div className="space-y-2">
@@ -69,6 +115,7 @@ export default function Login() {
               value={password} 
               onChange={e => setPassword(e.target.value)}
               className="bg-background"
+              placeholder="••••••••"
             />
           </div>
           <Button type="submit" className="w-full shadow-md shadow-primary/10" disabled={isLoading}>
@@ -84,13 +131,13 @@ export default function Login() {
         </div>
 
         <Button type="button" variant="outline" className="w-full mb-6" onClick={handleGoogleLogin}>
-          <SiGoogle className="mr-2 w-4 h-4" /> Google
+          <SiGoogle className="mr-2 w-4 h-4 text-red-500" /> Google
         </Button>
 
         <div className="text-center text-sm text-muted-foreground">
           Don't have an account?{' '}
-          <Link href="/signup" className="text-primary font-medium hover:underline">
-            Sign up
+          <Link href="/signup" className="text-primary font-semibold hover:underline">
+            Sign Up Now
           </Link>
         </div>
       </div>
