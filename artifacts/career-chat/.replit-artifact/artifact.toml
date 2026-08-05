@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "AI Career Assistant"
+description = "A full-stack AI Career Chatbot SaaS that helps users analyze resumes, optimize for ATS, prepare for technical and HR interviews, bridge skill gaps, generate learning roadmaps, and receive career guidance. Powered by Google Gemini with real-time streaming chat, conversation history, resume context, and Supabase Auth."
+version = "1.0.0"
+id = "artifacts/career-chat"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20239
+
+[services.development]
+run = "pnpm --filter @workspace/career-chat run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/career-chat", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/career-chat/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20239"
+BASE_PATH = "/"
