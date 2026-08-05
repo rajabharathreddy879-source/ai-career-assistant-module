@@ -6,6 +6,7 @@ export const profilesTable = pgTable("profiles", {
   id: text("id").primaryKey(),
   email: text("email").notNull(),
   full_name: text("full_name"),
+  password_hash: text("password_hash"),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
