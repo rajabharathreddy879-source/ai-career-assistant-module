@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db, profilesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "../lib/password";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 
 const router: IRouter = Router();
 
@@ -32,7 +32,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       return;
     }
 
-    const userId = uuidv4();
+    const userId = randomUUID();
     const password_hash = hashPassword(password);
 
     const [profile] = await db
