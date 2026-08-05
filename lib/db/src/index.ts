@@ -4,15 +4,12 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL || "";
-
-if (!dbUrl) {
-  console.warn("DATABASE_URL / SUPABASE_DB_URL is not set — database features will run in fallback mode.");
-}
+const defaultSupabaseUrl = "postgresql://postgres:raja1234%23%231234@db.jbzdnnartmkthrddzcbt.supabase.co:5432/postgres";
+const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL || defaultSupabaseUrl;
 
 export const pool = new Pool({
-  connectionString: dbUrl || "postgresql://postgres:postgres@localhost:5432/postgres",
-  ssl: dbUrl.includes("supabase.co") || process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false },
 });
 
 export const db = drizzle(pool, { schema });
