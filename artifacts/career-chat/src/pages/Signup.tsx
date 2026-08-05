@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -16,22 +16,22 @@ export default function Signup() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const cleanEmail = email.trim() || 'engineer@workspace.ai';
-    const cleanName = fullName.trim() || 'Lead Engineer';
+    const targetEmail = email.trim() || 'engineer@workspace.ai';
+    const targetName = fullName.trim() || 'Lead Engineer';
     try {
-      await signUp(cleanEmail, password, cleanName);
-    } catch (err) {}
-    toast({ title: 'Account Ready!', description: 'Entering your AI Career Assistant workspace.' });
+      await signUp(targetEmail, password, targetName);
+    } catch (e) {}
+    toast({ title: 'Account Created!', description: 'Entering your AI Career Assistant workspace.' });
     window.location.href = '/dashboard';
   };
 
-  const handleInstantAccess = async () => {
+  const handleInstantDemo = async () => {
     setIsLoading(true);
-    const guestEmail = `engineer.${Math.floor(Math.random() * 10000)}@workspace.ai`;
+    const demoEmail = `engineer.${Math.floor(Math.random() * 10000)}@workspace.ai`;
     try {
-      await signUp(guestEmail, 'password123', 'Guest Engineer');
+      await signUp(demoEmail, 'demo1234', 'Lead Engineer');
     } catch (e) {}
-    toast({ title: 'Workspace Ready!', description: 'Entering your AI Career Assistant dashboard.' });
+    toast({ title: 'Workspace Ready!', description: 'Opening your AI Career Assistant dashboard.' });
     window.location.href = '/dashboard';
   };
 
@@ -48,13 +48,13 @@ export default function Signup() {
           <p className="text-muted-foreground mt-2 text-sm">Join the high-signal AI Career workspace.</p>
         </div>
 
-        <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
+        <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-foreground">
-            <Sparkles className="w-4 h-4 text-primary shrink-0" />
-            <span>Want instant access? Skip registration form.</span>
+            <Zap className="w-4 h-4 text-primary shrink-0 animate-pulse" />
+            <span className="font-medium">Want instant 1-click access?</span>
           </div>
-          <Button size="sm" variant="default" className="text-xs h-7 px-3" onClick={handleInstantAccess} disabled={isLoading}>
-            Instant Guest Access <ArrowRight className="w-3 h-3 ml-1" />
+          <Button size="sm" variant="default" className="text-xs h-8 px-3 shadow-sm" onClick={handleInstantDemo} disabled={isLoading}>
+            Instant Access <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </div>
 
@@ -89,8 +89,8 @@ export default function Signup() {
               placeholder="••••••••"
             />
           </div>
-          <Button type="submit" className="w-full shadow-md shadow-primary/10 mt-2" disabled={isLoading}>
-            {isLoading ? 'Creating Workspace...' : 'Create Account'}
+          <Button type="submit" className="w-full shadow-md shadow-primary/10 font-semibold mt-2" disabled={isLoading}>
+            {isLoading ? 'Creating Workspace...' : 'Create Account & Enter'}
           </Button>
         </form>
 
