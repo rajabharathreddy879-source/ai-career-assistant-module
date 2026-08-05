@@ -16,13 +16,23 @@ export default function Signup() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      toast({ variant: 'destructive', title: 'Invalid Email', description: 'Please enter a valid email address.' });
+      return;
+    }
+    if (password.length < 6) {
+      toast({ variant: 'destructive', title: 'Weak Password', description: 'Password must be at least 6 characters.' });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await signUp(email, password, fullName);
-      toast({ title: 'Account created', description: 'Please sign in with your new account.' });
-      setLocation('/login');
+      await signUp(cleanEmail, password, fullName);
+      toast({ title: 'Account Created Successfully!', description: 'Logging into your new workspace.' });
+      setLocation('/dashboard');
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Signup Failed', description: error.message });
+      toast({ variant: 'destructive', title: 'Signup Failed', description: error.message || 'Failed to create account.' });
     } finally {
       setIsLoading(false);
     }
@@ -37,8 +47,8 @@ export default function Signup() {
           <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
             <span className="text-white text-xl font-bold font-mono">A</span>
           </div>
-          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">Create account</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Join the high-signal workspace for engineers.</p>
+          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">Create Account</h1>
+          <p className="text-muted-foreground mt-2 text-sm">Join the high-signal AI Career workspace.</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4 mb-6">
@@ -54,7 +64,7 @@ export default function Signup() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Email</label>
+            <label className="text-sm font-medium text-foreground">Email Address</label>
             <Input 
               type="email" 
               required 
@@ -65,13 +75,14 @@ export default function Signup() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Password</label>
+            <label className="text-sm font-medium text-foreground">Password (min. 6 characters)</label>
             <Input 
               type="password" 
               required 
               value={password} 
               onChange={e => setPassword(e.target.value)}
               className="bg-background"
+              placeholder="••••••••"
             />
           </div>
           <Button type="submit" className="w-full shadow-md shadow-primary/10 mt-2" disabled={isLoading}>
@@ -81,8 +92,8 @@ export default function Signup() {
 
         <div className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="text-primary font-medium hover:underline">
-            Sign in
+          <Link href="/login" className="text-primary font-semibold hover:underline">
+            Sign In
           </Link>
         </div>
       </div>
