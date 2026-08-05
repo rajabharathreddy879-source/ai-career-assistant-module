@@ -22,8 +22,6 @@ async function buildAll() {
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
     external: [
-      "zod",
-      "uuid",
       "*.node",
       "sharp",
       "better-sqlite3",
