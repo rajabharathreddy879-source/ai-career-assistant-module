@@ -91,14 +91,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: cleanEmail, password }),
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
-      if (res.ok && data.user && data.token) {
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('auth_user', JSON.stringify(data.user));
-        setUser(data.user);
-        setSession({ access_token: data.token, user: data.user });
-        return;
+      if (res.ok) {
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : {};
+        if (data.user && data.token) {
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          setUser(data.user);
+          setSession({ access_token: data.token, user: data.user });
+          return;
+        }
       }
     } catch (e) {}
 
@@ -125,14 +127,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: cleanEmail, password, full_name: cleanName }),
       });
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
-      if (res.ok && data.user && data.token) {
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('auth_user', JSON.stringify(data.user));
-        setUser(data.user);
-        setSession({ access_token: data.token, user: data.user });
-        return;
+      if (res.ok) {
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : {};
+        if (data.user && data.token) {
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          setUser(data.user);
+          setSession({ access_token: data.token, user: data.user });
+          return;
+        }
       }
     } catch (e) {}
 
