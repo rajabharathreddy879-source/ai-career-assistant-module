@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { SiGoogle } from 'react-icons/si';
 
 export default function Login() {
@@ -13,33 +13,25 @@ export default function Login() {
   const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const cleanEmail = email.trim() || 'engineer@workspace.ai';
+    const targetEmail = email.trim() || 'engineer@workspace.ai';
     try {
-      await signIn(cleanEmail, password);
-    } catch (err) {}
-    toast({ title: 'Welcome!', description: 'Opening your AI Career Assistant workspace.' });
+      await signIn(targetEmail, password);
+    } catch (e) {}
+    toast({ title: 'Welcome Back!', description: 'Entering your AI Career Assistant workspace.' });
     window.location.href = '/dashboard';
   };
 
-  const handleDemoSignIn = async () => {
+  const handleInstantDemo = async () => {
     setIsLoading(true);
     const demoEmail = `engineer.${Math.floor(Math.random() * 10000)}@workspace.ai`;
     try {
-      await signUp(demoEmail, 'password123', 'Guest Engineer');
-    } catch (err) {}
-    toast({ title: 'Workspace Ready!', description: 'Opening your AI Career Assistant dashboard.' });
+      await signUp(demoEmail, 'demo1234', 'Lead Engineer');
+    } catch (e) {}
+    toast({ title: 'Demo Access Granted!', description: 'Opening your AI Career Assistant dashboard.' });
     window.location.href = '/dashboard';
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error: any) {
-      window.location.href = '/dashboard';
-    }
   };
 
   return (
@@ -51,25 +43,25 @@ export default function Login() {
           <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
             <span className="text-white text-xl font-bold font-mono">A</span>
           </div>
-          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Sign in to your AI Career Assistant workspace.</p>
+          <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">Sign In to Workspace</h1>
+          <p className="text-muted-foreground mt-2 text-sm">High-signal AI Career platform for engineers.</p>
         </div>
 
-        <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between">
+        <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-foreground">
-            <Sparkles className="w-4 h-4 text-primary shrink-0" />
-            <span>Want a quick test? Use instant guest sign-in.</span>
+            <Zap className="w-4 h-4 text-primary shrink-0 animate-pulse" />
+            <span className="font-medium">Want 1-click guest access?</span>
           </div>
-          <Button size="sm" variant="default" className="text-xs h-7 px-3" onClick={handleDemoSignIn} disabled={isLoading}>
-            Instant Demo <ArrowRight className="w-3 h-3 ml-1" />
+          <Button size="sm" variant="default" className="text-xs h-8 px-3 shadow-sm" onClick={handleInstantDemo} disabled={isLoading}>
+            Instant Demo <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </div>
 
-        <form onSubmit={handleEmailLogin} className="space-y-4 mb-6">
+        <form onSubmit={handleLogin} className="space-y-4 mb-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Email Address</label>
             <Input 
-              type="text" 
+              type="text"
               value={email} 
               onChange={e => setEmail(e.target.value)} 
               className="bg-background"
@@ -86,7 +78,7 @@ export default function Login() {
               placeholder="••••••••"
             />
           </div>
-          <Button type="submit" className="w-full shadow-md shadow-primary/10" disabled={isLoading}>
+          <Button type="submit" className="w-full shadow-md shadow-primary/10 font-semibold" disabled={isLoading}>
             {isLoading ? 'Entering Workspace...' : 'Sign In'}
           </Button>
         </form>
@@ -98,14 +90,14 @@ export default function Login() {
           </div>
         </div>
 
-        <Button type="button" variant="outline" className="w-full mb-6" onClick={handleGoogleLogin}>
-          <SiGoogle className="mr-2 w-4 h-4 text-red-500" /> Google
+        <Button type="button" variant="outline" className="w-full mb-6" onClick={handleInstantDemo}>
+          <ShieldCheck className="mr-2 w-4 h-4 text-primary" /> Guest Account
         </Button>
 
         <div className="text-center text-sm text-muted-foreground">
           Don't have an account?{' '}
           <a href="/signup" className="text-primary font-semibold hover:underline">
-            Sign Up Now
+            Create Account
           </a>
         </div>
       </div>
